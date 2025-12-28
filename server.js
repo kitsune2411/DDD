@@ -17,6 +17,7 @@ const AppError = require("@shared/core/AppError");
 
 // 4. Import Modules (Bounded Contexts)
 const orderModule = require("@modules/order");
+const partnerModule = require("@modules/partner");
 // const userModule = require('@modules/user'); // Contoh modul lain nanti
 
 // 5. Init Express
@@ -76,6 +77,7 @@ app.get("/health", async (req, res) => {
 // Kita suntikkan (Inject) dbPool ke setiap modul.
 // Ini membuat modul Order independen, dia tidak hardcode import DB.
 app.use("/api/orders", orderModule(dbPool));
+app.use("/api/partner", partnerModule(dbPool));
 // app.use('/api/users', userModule(dbPool));
 
 // =================================================================
