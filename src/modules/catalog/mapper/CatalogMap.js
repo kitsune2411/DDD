@@ -2,6 +2,7 @@ const Catalog = require('../domain/Catalog');
 const DateUtils = require('@shared/utils/DateUtils');
 
 class CatalogMap {
+  /** @param {any} raw */
   static toDomain(raw) {
     if (!raw) return null;
     return new Catalog({
@@ -11,6 +12,7 @@ class CatalogMap {
     });
   }
 
+  /** @param {Catalog} entity */
   static toPersistence(entity) {
     return {
       id: entity.id,
@@ -19,6 +21,7 @@ class CatalogMap {
     };
   }
 
+  /** @param {Catalog} entity */
   static toDTO(entity) {
     return {
       id: entity.id,

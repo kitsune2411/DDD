@@ -49,30 +49,39 @@ test-watch: ## Run Tests in Watch Mode
 	npm run test:watch
 
 # ==============================================================================
-# 🏗️ SCAFFOLDING (Generator)
+# SCAFFOLDING (MODULE GENERATOR)
 # ==============================================================================
 .PHONY: module
 
-module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=product
+module: ## Create Module with Full JSDoc Types. Usage: make module name=product
 	@if [ -z "$(name)" ]; then echo "Error: Missing name. Usage: make module name=product"; exit 1; fi
 	@# Logic Capitalize (product -> Product)
 	$(eval CAP_NAME := $(shell echo $(name) | awk '{print toupper(substr($$0,1,1))substr($$0,2)}'))
-	@echo "Scaffolding module '$(name)' (Class: $(CAP_NAME))..."
+	@echo "Scaffolding module '$(name)'... (Class name: '$(CAP_NAME)')"
 	
-	@# 1. Buat Folder Lengkap (Termasuk interface/dtos)
+	@# 1. Create Directories
 	@mkdir -p src/modules/$(name)/domain
 	@mkdir -p src/modules/$(name)/application
 	@mkdir -p src/modules/$(name)/infrastructure
 	@mkdir -p src/modules/$(name)/interface/http
 	@mkdir -p src/modules/$(name)/interface/dtos
+	@mkdir -p src/modules/$(name)/handlers
 	@mkdir -p src/modules/$(name)/mapper
 
 	@# 2. DOMAIN ENTITY
-	@echo "const AppError = require('@shared/core/AppError');" > src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "const AggregateRoot = require('@shared/core/AggregateRoot');" > src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "const AppError = require('@shared/core/AppError');" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "const { v4: uuidv4 } = require('uuid');" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "" >> src/modules/$(name)/domain/$(CAP_NAME).js
-	@echo "class $(CAP_NAME) {" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "class $(CAP_NAME) extends AggregateRoot {" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "  /**" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "   * @param {object} props" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "   * @param {string} [props.id]" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "   * @param {string} props.name" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "   * @param {Date} [props.createdAt]" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "   */" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "  constructor({ id, name, createdAt }) {" >> src/modules/$(name)/domain/$(CAP_NAME).js
+	@echo "    super();" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "    this.id = id || uuidv4();" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "    this.name = name;" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "    this.createdAt = createdAt || new Date();" >> src/modules/$(name)/domain/$(CAP_NAME).js
@@ -85,11 +94,12 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "}" >> src/modules/$(name)/domain/$(CAP_NAME).js
 	@echo "module.exports = $(CAP_NAME);" >> src/modules/$(name)/domain/$(CAP_NAME).js
 
-	@# 3. MAPPER (Output Formatting)
+	@# 3. MAPPER
 	@echo "const $(CAP_NAME) = require('../domain/$(CAP_NAME)');" > src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "const DateUtils = require('@shared/utils/DateUtils');" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "class $(CAP_NAME)Map {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
+	@echo "  /** @param {any} raw */" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "  static toDomain(raw) {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "    if (!raw) return null;" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "    return new $(CAP_NAME)({" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
@@ -99,6 +109,7 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "    });" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "  }" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
+	@echo "  /** @param {$(CAP_NAME)} entity */" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "  static toPersistence(entity) {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "    return {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "      id: entity.id," >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
@@ -107,6 +118,7 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "    };" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "  }" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
+	@echo "  /** @param {$(CAP_NAME)} entity */" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "  static toDTO(entity) {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "    return {" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "      id: entity.id," >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
@@ -117,15 +129,17 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "}" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 	@echo "module.exports = $(CAP_NAME)Map;" >> src/modules/$(name)/mapper/$(CAP_NAME)Map.js
 
-	@# 4. REPOSITORY (Raw SQL)
+	@# 4. REPOSITORY (Strictly Typed)
 	@echo "const $(CAP_NAME)Map = require('../mapper/$(CAP_NAME)Map');" > src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "class MySQL$(CAP_NAME)Repository {" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
+	@echo "  /** @param {import('mysql2/promise').Pool} dbPool */" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  constructor(dbPool) {" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    this.db = dbPool;" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    this.tableName = '$(name)s';" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  }" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
+	@echo "  /** @param {import('../domain/$(CAP_NAME)')} entity */" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  async save(entity) {" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    const raw = $(CAP_NAME)Map.toPersistence(entity);" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    const sql = \`INSERT INTO \` + this.tableName + \` (id, name, created_at) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE name = VALUES(name)\`;" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
@@ -133,9 +147,11 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "    return entity;" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  }" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
+	@echo "  /** @param {string} id */" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  async findById(id) {" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    const sql = \`SELECT * FROM \` + this.tableName + \` WHERE id = ?\`;" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    const [rows] = await this.db.execute(sql, [id]);" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
+	@echo "    // @ts-ignore" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "    return rows.length ? $(CAP_NAME)Map.toDomain(rows[0]) : null;" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "  }" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
 	@echo "}" >> src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js
@@ -143,12 +159,15 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 
 	@# 5. SERVICE
 	@echo "const $(CAP_NAME) = require('../domain/$(CAP_NAME)');" > src/modules/$(name)/application/Create$(CAP_NAME)Service.js
+	@echo "const MySQL$(CAP_NAME)Repository = require('../infrastructure/MySQL$(CAP_NAME)Repository');" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "class Create$(CAP_NAME)Service {" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
+	@echo "  /** @param {MySQL$(CAP_NAME)Repository} repo */" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "  constructor(repo) {" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "    this.repo = repo;" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "  }" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
+	@echo "  /** @param {{ name: string }} dto */" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "  async execute(dto) {" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "    const entity = new $(CAP_NAME)({ name: dto.name });" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "    await this.repo.save(entity);" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
@@ -157,56 +176,66 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "}" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 	@echo "module.exports = Create$(CAP_NAME)Service;" >> src/modules/$(name)/application/Create$(CAP_NAME)Service.js
 
-	@# 6. DTO (Zod Schema for Input Validation)
+	@# 6. DTO
 	@echo "const { z } = require('zod');" > src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 	@echo "" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
-	@echo "// Skema Validasi Input" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 	@echo "const create$(CAP_NAME)Schema = z.object({" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
-	@echo "  name: z.string().min(3, 'Name must be at least 3 characters').max(100)," >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
+	@echo "  name: z.string().min(3).max(100)," >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 	@echo "});" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 	@echo "" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 	@echo "module.exports = { create$(CAP_NAME)Schema };" >> src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
 
-	@# 7. CONTROLLER (Validasi & Mapping)
+	@# 7. CONTROLLER (Express Types Added)
 	@echo "const $(CAP_NAME)Map = require('../../mapper/$(CAP_NAME)Map');" > src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "const { create$(CAP_NAME)Schema } = require('../dtos/Create$(CAP_NAME)DTO');" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "const Create$(CAP_NAME)Service = require('../../application/Create$(CAP_NAME)Service');" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "class $(CAP_NAME)Controller {" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "  /** @param {Create$(CAP_NAME)Service} createService */" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "  constructor(createService) {" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "    this.createService = createService;" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "  }" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "  /**" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "   * @param {import('express').Request} req" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "   * @param {import('express').Response} res" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "   * @param {import('express').NextFunction} next" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "   */" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "  create = async (req, res, next) => {" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "    try {" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "      // 1. Validasi Input via Zod (DTO)" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "      const dto = create$(CAP_NAME)Schema.parse(req.body);" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "      // 2. Eksekusi Service" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "      const result = await this.createService.execute(dto);" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "      // 3. Format Output via Mapper" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "      const response = $(CAP_NAME)Map.toDTO(result);" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
-	@echo "      res.status(201).json({ success: true, data: response });" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
+	@echo "      res.status(201).json({ success: true, data: $(CAP_NAME)Map.toDTO(result) });" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "    } catch (error) { next(error); }" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "  }" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "}" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "module.exports = $(CAP_NAME)Controller;" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 
-	@# 8. ROUTER
+	@# 8. HANDLERS
+	@echo "const Logger = require('@shared/infra/logging/Logger');" > src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "/** @param {{ id: string }} event */" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "const handleCreated = async (event) => {" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "  Logger.info(\`Handling event for $(name): \${event.id}\`);" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "};" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "module.exports = { handleCreated };" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+
+	@# 9. ROUTER & WIRING
 	@echo "const router = require('express').Router();" > src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "" >> src/modules/$(name)/interface/http/$(name)Routes.js
+	@echo "/** @param {import('./$(CAP_NAME)Controller')} controller */" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "module.exports = (controller) => {" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "  router.post('/', controller.create);" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "  return router;" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "};" >> src/modules/$(name)/interface/http/$(name)Routes.js
 
-	@# 9. WIRING
 	@echo "const MySQL$(CAP_NAME)Repository = require('./infrastructure/MySQL$(CAP_NAME)Repository');" > src/modules/$(name)/index.js
 	@echo "const Create$(CAP_NAME)Service = require('./application/Create$(CAP_NAME)Service');" >> src/modules/$(name)/index.js
 	@echo "const $(CAP_NAME)Controller = require('./interface/http/$(CAP_NAME)Controller');" >> src/modules/$(name)/index.js
 	@echo "const createRouter = require('./interface/http/$(name)Routes');" >> src/modules/$(name)/index.js
 	@echo "" >> src/modules/$(name)/index.js
+	@echo "/** @param {import('mysql2/promise').Pool} dbPool */" >> src/modules/$(name)/index.js
 	@echo "module.exports = (dbPool) => {" >> src/modules/$(name)/index.js
 	@echo "  const repo = new MySQL$(CAP_NAME)Repository(dbPool);" >> src/modules/$(name)/index.js
 	@echo "  const service = new Create$(CAP_NAME)Service(repo);" >> src/modules/$(name)/index.js
@@ -214,15 +243,18 @@ module: ## Create Module (Raw SQL + Zod DTO + Mapper). Usage: make module name=p
 	@echo "  return createRouter(controller);" >> src/modules/$(name)/index.js
 	@echo "};" >> src/modules/$(name)/index.js
 
-	@echo "Module '$(name)' Created!"
-	@echo "   - src/modules/$(name)/domain/$(CAP_NAME).js"
-	@echo "   - src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js"
-	@echo "   - src/modules/$(name)/application/Create$(CAP_NAME)Service.js"
-	@echo "   - src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js"
-	@echo "   - src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js"
-	@echo "   - src/modules/$(name)/interface/http/$(name)Routes.js"
-	@echo "   - src/modules/$(name)/mapper/$(CAP_NAME)Map.js"
+	@echo "Module '$(name)' scaffolding complete."
+	@echo " - src/modules/$(name)/domain/$(CAP_NAME).js"
+	@echo " - src/modules/$(name)/mapper/$(CAP_NAME)Map.js"
+	@echo " - src/modules/$(name)/infrastructure/MySQL$(CAP_NAME)Repository.js"
+	@echo " - src/modules/$(name)/application/Create$(CAP_NAME)Service.js"
+	@echo " - src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js"
+	@echo " - src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js"
+	@echo " - src/modules/$(name)/interface/http/$(name)Routes.js"
+	@echo " - src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js"
+	@echo " - src/modules/$(name)/index.js"
 	@echo ""
+	@echo "Remember to register the module in your main app router."
 
 # ==============================================================================
 # DATABASE (KNEX MIGRATIONS)

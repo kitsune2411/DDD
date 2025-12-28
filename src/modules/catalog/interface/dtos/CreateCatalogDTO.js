@@ -1,8 +1,11 @@
-const { z } = require('zod');
+const { z } = require("zod");
 
-// Skema Validasi Input
-const createCatalogSchema = z.object({
-  name: z.string().min(3, 'Name must be at least 3 characters').max(100),
-});
+const createCatalogSchema = z
+  .object({
+    name: z.string().min(3).max(100),
+  })
+  .strict();
+
+/** @typedef {z.infer<typeof createCatalogSchema>} CreateCatalogDTO */
 
 module.exports = { createCatalogSchema };
