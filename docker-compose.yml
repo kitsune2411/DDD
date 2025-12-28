@@ -1,0 +1,74 @@
+version: "3.8"
+
+services:
+  # ==========================================
+  # 1. NODE.JS APP
+  # ==========================================
+  app:
+    build: .
+    container_name: ddd_app_container
+    restart: always
+    # Mapping Port: Port Host (dari .env) : Port Container (dari .env)
+    ports:
+      - "${PORT}:${PORT}"
+
+    # Load semua variabel dari .env ke dalam container
+    env_file:
+      - .env
+
+    # OVERRIDE variabel khusus untuk networking Docker
+    # (Ini menimpa value 'localhost' di .env menjadi nama service docker)
+    environment:
+      - DB_HOST=db
+      - REDIS_HOST=cache
+      # Variabel lain (DB_USER, DB_PASS) otomatis masuk lewat 'env_file'
+
+    depends_on:
+      - db
+      - cache
+    networks:
+      - app_network
+
+  # ==========================================
+  # 2. DATABASE (MySQL)
+  # ==========================================
+  db:
+    image: mysql:8.0
+    container_name: ddd_mysql_container
+    restart: always
+    ports:
+      - "${DB_PORT}:${DB_PORT}"
+
+    # Mapping Variable .env ke Variable bawaan Image MySQL
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - app_network
+
+  # ==========================================
+  # 3. CACHE (Redis)
+  # ==========================================
+  cache:
+    image: redis:alpine
+    container_name: ddd_redis_container
+    restart: always
+    ports:
+      - "${REDIS_PORT}:${REDIS_PORT}"
+    networks:
+      - app_network
+
+# ==========================================
+# NETWORK & VOLUMES
+# ==========================================
+networks:
+  app_network:
+    driver: bridge
+
+volumes:
+  mysql_data:
