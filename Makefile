@@ -2,9 +2,15 @@
 # APP MANAGEMENT CHEATSHEET
 # ==============================================================================
 
-# Variables
-APP_NAME := my-ddd-app
-DOCKER_TAG := latest
+# Load file .env jika ada
+ifneq (,$(wildcard .env))
+    include .env
+    export
+endif
+
+# Variables with default values
+APP_NAME ?= my-ddd-app
+DOCKER_TAG ?= latest
 
 # Detect OS for Clean Command
 ifeq ($(OS),Windows_NT)
@@ -118,7 +124,8 @@ seed-run: ## Populate database with dummy data
 # ==============================================================================
 .PHONY: docker-build docker-up docker-down
 
-docker-build: ## Build docker image
+docker-build: ## Build docker image using .env variables
+	@echo "Building image: $(APP_NAME):$(DOCKER_TAG)"
 	docker build -t $(APP_NAME):$(DOCKER_TAG) .
 
 docker-up: ## Run containers in background
@@ -126,6 +133,17 @@ docker-up: ## Run containers in background
 
 docker-down: ## Stop and remove containers
 	docker-compose down
+
+docker-scale: ## Scale App instances (Usage: make docker-scale n=3)
+	@if [ -z "$(n)" ]; then echo "Error: Missing count. Usage: make docker-scale n=3"; exit 1; fi
+	@echo "Scaling app to $(n) instances..."
+	docker-compose up -d --scale app=$(n)
+	@echo "Scale complete! Check ports via 'docker ps'"
+
+docker-update: ## Rebuild & Restart container (Gunakan setelah edit kodingan)
+	@echo "Updating application..."
+	docker-compose up -d --build
+	@echo "Application updated!"
 
 # ==============================================================================
 # UTILITIES

@@ -8,9 +8,12 @@ services:
     build: .
     container_name: ddd_app_container
     restart: always
-    # Mapping Port: Port Host (dari .env) : Port Container (dari .env)
     ports:
-      - "${PORT}:${PORT}"
+      # (Contoh: Mapping port 3000 container ke Range 3000-3010 di Host):
+      # Jika Anda menjalankan beberapa instance, mereka akan otomatis
+      # mengambil port yang tersedia di range ini.
+      # HOST_PORT:CONTAINER_PORT
+      - "3000-3010:${PORT}"
 
     # Load semua variabel dari .env ke dalam container
     env_file:
