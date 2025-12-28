@@ -1,0 +1,67 @@
+{
+  "DDD Repository": {
+    "prefix": "ddd-repo",
+    "body": [
+      "const I${1:Entity}Repository = require('../../domain/I${1}Repository');",
+      "const ${1}Mapper = require('./${1}Mapper');",
+      "",
+      "class MySQL${1}Repository extends I${1}Repository {",
+      "  constructor(pool) {",
+      "    super();",
+      "    this.pool = pool;",
+      "  }",
+      "",
+      "  async save(${2:entity}) {",
+      "    const data = ${1}Mapper.toPersistence(${2});",
+      "    const conn = await this.pool.getConnection();",
+      "    try {",
+      "      // await conn.execute('...', []);",
+      "    } finally {",
+      "      conn.release();",
+      "    }",
+      "  }",
+      "}",
+      "module.exports = MySQL${1}Repository;"
+    ],
+    "description": "Template Repository MySQL"
+  },
+  "DDD Service": {
+    "prefix": "ddd-service",
+    "body": [
+      "const AppError = require('@shared/core/AppError');",
+      "",
+      "class ${1:Name}Service {",
+      "  constructor(${2:repo}Repository) {",
+      "    this.${2}Repo = ${2}Repository;",
+      "  }",
+      "",
+      "  async execute(dto) {",
+      "    // Logic here",
+      "  }",
+      "}",
+      "module.exports = ${1}Service;"
+    ],
+    "description": "Template Application Service"
+  },
+  "DDD Controller": {
+    "prefix": "ddd-controller",
+    "body": [
+      "class ${1:Name}Controller {",
+      "  constructor(service) {",
+      "    this.service = service;",
+      "  }",
+      "",
+      "  execute = async (req, res, next) => {",
+      "    try {",
+      "      const result = await this.service.execute(req.body);",
+      "      res.status(200).json({ success: true, data: result });",
+      "    } catch (error) {",
+      "      next(error);",
+      "    }",
+      "  }",
+      "}",
+      "module.exports = ${1}Controller;"
+    ],
+    "description": "Template HTTP Controller"
+  }
+}

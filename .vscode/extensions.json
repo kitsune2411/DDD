@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode", // Formatter
+    "dbaeumer.vscode-eslint", // Linter
+    "mikestead.dotenv", // Syntax Highlighting .env
+    "christian-kohler.path-intellisense", // Auto complete path
+    "humao.rest-client" // Test API tanpa Postman
+  ]
+}

@@ -1,0 +1,41 @@
+my-app/
+├── .env                       <-- Konfigurasi Rahasia
+├── .gitignore
+├── package.json
+├── jsconfig.json              <-- Config Alias (@shared, @modules)
+├── knexfile.js                <-- Config Tooling Migrasi
+├── Makefile                   <-- Shortcut Commands
+├── Dockerfile                 <-- Deployment Image
+│
+├── migrations/                <-- File History Perubahan DB
+│   └── 20231027_create_orders.js
+│
+├── src/
+│   ├── config/                <-- Loader Config & Validasi .env
+│   │   └── database.js
+│   │
+│   ├── shared/                <-- KERNEL (Kode milik bersama)
+│   │   ├── core/              (Base Classes)
+│   │   │   ├── AppError.js
+│   │   │   └── AggregateRoot.js
+│   │   ├── infra/             (Technical Capabilities)
+│   │   │   ├── database/
+│   │   │   │   └── connection.js  <-- MySQL Pool (Runtime)
+│   │   │   ├── http/
+│   │   │   │   ├── errorHandler.js
+│   │   │   │   └── authMiddleware.js
+│   │   │   ├── logging/
+│   │   │   │   └── Logger.js
+│   │   │   └── queue/         (Optional: BullMQ)
+│   │   └── utils/
+│   │       └── dateUtils.js   (Day.js wrapper)
+│   │
+│   └── modules/               <-- BOUNDED CONTEXTS (Fitur Bisnis)
+│       └── order/             <-- Contoh Modul 'Order'
+│           ├── index.js       <-- Module Manager (Wiring)
+│           ├── domain/        <-- LAYER 1: Logic & Rules
+│           ├── application/   <-- LAYER 2: Orchestration (Service)
+│           ├── infrastructure/<-- LAYER 3: SQL & External API
+│           └── interface/     <-- LAYER 4: HTTP & DTOs
+│
+└── server.js                  <-- Entry Point (Wiring Global)

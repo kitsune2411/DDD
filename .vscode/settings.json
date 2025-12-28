@@ -1,0 +1,27 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  },
+  
+  // PENTING: Agar VS Code lebih suka import pakai Alias (@shared) daripada relative path (../../)
+  "javascript.preferences.importModuleSpecifier": "non-relative",
+  
+  // Sembunyikan file sampah
+  "files.exclude": {
+    "**/.git": true,
+    "**/.DS_Store": true,
+    "**/node_modules": false // Biarkan false agar bisa di-search, tapi exclude di watcher
+  },
+
+  // Fitur Keren: File Nesting
+  // File .test.js akan 'ngumpet' di bawah file aslinya di Explorer
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.js": "$(capture).test.js, $(capture).spec.js, $(capture).map.js"
+  },
+  
+  // Terminal Font (Opsional)
+  "terminal.integrated.fontSize": 14
+}
