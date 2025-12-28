@@ -1,0 +1,41 @@
+<html>
+  <head>
+    <style>
+      body { font-family: Arial, sans-serif; color: #333; } .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; } .header { background-color:
+      #4CAF50; color: white; padding: 10px; text-align: center; } .content { padding: 20px; } .footer { font-size: 12px; color: #777; text-align: center; margin-top: 20px; } .total
+      { font-size: 18px; font-weight: bold; color: #d9534f; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>Konfirmasi Pesanan</h2>
+      </div>
+      <div class="content">
+        <p>Halo, <strong>{{customerEmail}}</strong>!</p>
+        <p>Terima kasih telah berbelanja di toko kami. Berikut detail pesanan Anda:</p>
+
+        <table width="100%">
+          <tr>
+            <td>Order ID:</td>
+            <td><strong>#{{orderId}}</strong></td>
+          </tr>
+          <tr>
+            <td>Tanggal:</td>
+            <td>{{orderDate}}</td>
+          </tr>
+        </table>
+
+        <hr />
+
+        <h3>Total Pembayaran:</h3>
+        <p class="total">Rp {{totalAmount}}</p>
+
+        <p>Mohon segera lakukan pembayaran sebelum kami mengirim barang Anda.</p>
+      </div>
+      <div class="footer">
+        <p>&copy; 2023 My DDD App. All rights reserved.</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -20,6 +20,9 @@ const orderModule = require("@modules/order");
 const partnerModule = require("@modules/partner");
 // const userModule = require('@modules/user'); // Contoh modul lain nanti
 
+// 4a. Import dan Init Background Workers
+const { initWorker: initOrderWorker } = require("@modules/order/workers/OrderEmailWorker");
+
 // 5. Init Express
 const app = express();
 
@@ -79,6 +82,11 @@ app.get("/health", async (req, res) => {
 app.use("/api/orders", orderModule(dbPool));
 app.use("/api/partner", partnerModule(dbPool));
 // app.use('/api/users', userModule(dbPool));
+
+// --- JALANKAN WORKER ---
+// Worker berjalan di process yang sama (untuk skala kecil)
+// Untuk skala besar, Worker biasanya dijalankan di container terpisah
+initOrderWorker();
 
 // =================================================================
 // D. ERROR HANDLING
