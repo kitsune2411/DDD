@@ -7,6 +7,7 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
 ## 🗺️ Documentation Map
 
 ### For Getting Started
+
 - **[README.md](./README.md)** ⭐ **START HERE**
   - Project overview and features
   - Installation and setup instructions
@@ -15,6 +16,7 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
   - Troubleshooting guide
 
 ### For Architecture Understanding
+
 - **[ARCHITECTURE.md](./ARCHITECTURE.md)** 📐 **Architecture Deep Dive**
   - DDD core concepts explained
   - Project structure breakdown
@@ -25,6 +27,7 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
   - Module creation checklist
 
 ### For API Development
+
 - **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** 🔌 **API Reference**
   - Base URL and authentication
   - Health check endpoint
@@ -36,6 +39,7 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
   - cURL and Postman examples
 
 ### For Code Implementation
+
 - **[CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md)** 💻 **Code Reference**
   - Core classes documentation (AggregateRoot, AppError, Guard, ValueObject)
   - Shared infrastructure utilities
@@ -49,24 +53,28 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
 ## 🎯 Quick Navigation by Use Case
 
 ### "I'm New to This Project"
+
 1. Read [README.md](./README.md) - Project overview
 2. Follow installation in [README.md](./README.md#-getting-started)
 3. Run `make dev` to start server
 4. Test health check: `curl http://localhost:3000/health`
 
 ### "I Want to Understand the Architecture"
+
 1. Read [ARCHITECTURE.md](./ARCHITECTURE.md#-ddd-core-concepts)
 2. Learn about [Bounded Contexts](./ARCHITECTURE.md#-bounded-contexts)
 3. Study [Core Domain Patterns](./ARCHITECTURE.md#-core-domain-patterns)
 4. Review [Design Decisions](./ARCHITECTURE.md#-design-decisions)
 
 ### "I Need to Call an API Endpoint"
+
 1. Check [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 2. Find your endpoint (Order, Partner, etc.)
 3. Copy the example request
 4. Try with cURL or Postman
 
 ### "I'm Adding a New Feature"
+
 1. Read [ARCHITECTURE.md - Module Checklist](./ARCHITECTURE.md#-checklist-creating-a-new-module)
 2. Generate module: `make module name=mymodule`
 3. Follow domain-driven design patterns
@@ -74,12 +82,14 @@ Welcome to the DDD (Domain-Driven Design) Project Documentation! This is your co
 5. Reference [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#-module-structure)
 
 ### "I'm Debugging Code"
+
 1. Check [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md) for class documentation
 2. Read JSDoc comments in source files
 3. Review [Common Patterns](./CODE_DOCUMENTATION.md#-common-patterns)
 4. Check error handling in [AppError](./CODE_DOCUMENTATION.md#apperror)
 
 ### "I'm Deploying to Production"
+
 1. Read Docker section in [README.md](./README.md#-docker-deployment)
 2. Check [Environment Variables](./README.md#-configure-env-file)
 3. Review [Database Migrations](./README.md#-database-migrations)
@@ -115,6 +125,20 @@ ddd/
 │   │   │   │   └── dtos/
 │   │   │   └── workers/
 │   │   │       └── OrderEmailWorker.js
+│   │   │
+│   │   ├── catalog/
+│   │   │   ├── domain/
+│   │   │   │   ├── Catalog.js      (Aggregate Root)
+│   │   │   │   └── ICatalogRepository.js
+│   │   │   ├── application/
+│   │   │   │   └── GetCatalogList.js
+│   │   │   ├── infrastructure/
+│   │   │   │   └── MySQLCatalogRepository.js
+│   │   │   ├── interface/
+│   │   │   │   ├── http/
+│   │   │   │   └── dtos/
+│   │   │   └── mapper/
+│   │   │
 │   │   └── partner/
 │   │       └── (Similar structure)
 │   │
@@ -152,61 +176,71 @@ ddd/
 
 ### DDD Terminology
 
-| Term | Definition | File |
-|------|-----------|------|
-| **Aggregate Root** | Entry point to a cluster of objects | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#aggregateroot) |
-| **Value Object** | Immutable object without identity | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#valueobject) |
-| **Domain Event** | Something important that happened | [ARCHITECTURE.md](./ARCHITECTURE.md#-domain-events) |
-| **Repository** | Abstraction for data access | [ARCHITECTURE.md](./ARCHITECTURE.md#-repository-pattern) |
-| **Bounded Context** | Isolated domain with its own rules | [ARCHITECTURE.md](./ARCHITECTURE.md#-bounded-contexts) |
-| **Domain Service** | Logic that doesn't belong to one entity | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md) |
-| **Application Service** | Orchestrates domain objects for a use case | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md) |
+| Term                    | Definition                                 | File                                                           |
+| ----------------------- | ------------------------------------------ | -------------------------------------------------------------- |
+| **Aggregate Root**      | Entry point to a cluster of objects        | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#aggregateroot) |
+| **Value Object**        | Immutable object without identity          | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#valueobject)   |
+| **Domain Event**        | Something important that happened          | [ARCHITECTURE.md](./ARCHITECTURE.md#-domain-events)            |
+| **Repository**          | Abstraction for data access                | [ARCHITECTURE.md](./ARCHITECTURE.md#-repository-pattern)       |
+| **Bounded Context**     | Isolated domain with its own rules         | [ARCHITECTURE.md](./ARCHITECTURE.md#-bounded-contexts)         |
+| **Domain Service**      | Logic that doesn't belong to one entity    | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md)               |
+| **Application Service** | Orchestrates domain objects for a use case | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md)               |
 
 ### Common Utilities
 
-| Utility | Use For | File |
-|---------|---------|------|
-| `Guard` | Input validation (fail fast) | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#guard) |
-| `AppError` | Custom application errors | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#apperror) |
-| `DateUtils` | Date manipulation | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#dateutils) |
-| `ObjectUtils` | Object operations | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#objectutils) |
-| `PaginationUtils` | Pagination logic | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#paginationutils) |
-| `TextUtils` | String manipulation | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#textutils) |
+| Utility           | Use For                      | File                                                             |
+| ----------------- | ---------------------------- | ---------------------------------------------------------------- |
+| `Guard`           | Input validation (fail fast) | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#guard)           |
+| `AppError`        | Custom application errors    | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#apperror)        |
+| `DateUtils`       | Date manipulation            | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#dateutils)       |
+| `ObjectUtils`     | Object operations            | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#objectutils)     |
+| `PaginationUtils` | Pagination logic             | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#paginationutils) |
+| `TextUtils`       | String manipulation          | [CODE_DOCUMENTATION.md](./CODE_DOCUMENTATION.md#textutils)       |
 
 ---
 
 ## 📋 Common Tasks & Where to Find Help
 
 ### Setting Up Development Environment
+
 → [README.md - Getting Started](./README.md#-getting-started)
 
 ### Creating a New Module
+
 → [ARCHITECTURE.md - Module Checklist](./ARCHITECTURE.md#-checklist-creating-a-new-module)
 
 ### Creating an API Endpoint
+
 1. [ARCHITECTURE.md - Interface Layer](./ARCHITECTURE.md#-interface-layer)
 2. [API_DOCUMENTATION.md - Examples](./API_DOCUMENTATION.md#-order-endpoints)
 3. [CODE_DOCUMENTATION.md - Module Structure](./CODE_DOCUMENTATION.md#-module-structure)
 
 ### Handling Errors
+
 → [CODE_DOCUMENTATION.md - AppError](./CODE_DOCUMENTATION.md#apperror)
 
 ### Validating Input
+
 → [CODE_DOCUMENTATION.md - Guard](./CODE_DOCUMENTATION.md#guard)
 
 ### Database Migrations
+
 → [README.md - Database Migrations](./README.md#-database-migrations)
 
 ### Testing an API
+
 → [API_DOCUMENTATION.md - Testing](./API_DOCUMENTATION.md#-testing-endpoints)
 
 ### Deploying with Docker
+
 → [README.md - Docker Deployment](./README.md#-docker-deployment)
 
 ### Understanding Domain Events
+
 → [ARCHITECTURE.md - Domain Events](./ARCHITECTURE.md#-domain-events)
 
 ### Querying Data (Repository Pattern)
+
 → [ARCHITECTURE.md - Repository Pattern](./ARCHITECTURE.md#-repository-pattern)
 
 ---
@@ -245,11 +279,13 @@ make help                            # Show all commands
 ## 🔗 External References
 
 ### DDD & Software Design
+
 - [Domain-Driven Design by Eric Evans](https://www.domainlanguage.com/ddd/)
 - [Martin Fowler on DDD](https://martinfowler.com/bliki/DomainDrivenDesign.html)
 - [SOLID Principles](https://en.wikipedia.org/wiki/SOLID)
 
 ### Technologies Used
+
 - [Express.js Documentation](https://expressjs.com/)
 - [Knex.js Query Builder](https://knexjs.org/)
 - [BullMQ - Job Queue](https://docs.bullmq.io/)
@@ -257,6 +293,7 @@ make help                            # Show all commands
 - [Handlebars - Templates](https://handlebarsjs.com/)
 
 ### Node.js Best Practices
+
 - [Node.js Best Practices GitHub](https://github.com/goldbergyoni/nodebestpractices)
 - [12 Factor App](https://12factor.net/)
 
@@ -289,13 +326,13 @@ A: See [Guard](./CODE_DOCUMENTATION.md#guard) in CODE_DOCUMENTATION.md.
 
 ## 📞 Documentation Version
 
-| Document | Version | Last Updated |
-|----------|---------|--------------|
-| README.md | 1.0.0 | Dec 28, 2025 |
-| ARCHITECTURE.md | 1.0.0 | Dec 28, 2025 |
-| API_DOCUMENTATION.md | 1.0.0 | Dec 28, 2025 |
-| CODE_DOCUMENTATION.md | 1.0.0 | Dec 28, 2025 |
-| DOCUMENTATION_INDEX.md | 1.0.0 | Dec 28, 2025 |
+| Document               | Version | Last Updated |
+| ---------------------- | ------- | ------------ |
+| README.md              | 1.0.0   | Dec 28, 2025 |
+| ARCHITECTURE.md        | 1.0.0   | Dec 28, 2025 |
+| API_DOCUMENTATION.md   | 1.0.0   | Dec 28, 2025 |
+| CODE_DOCUMENTATION.md  | 1.0.0   | Dec 28, 2025 |
+| DOCUMENTATION_INDEX.md | 1.0.0   | Dec 28, 2025 |
 
 ---
 
@@ -315,7 +352,7 @@ A: See [Guard](./CODE_DOCUMENTATION.md#guard) in CODE_DOCUMENTATION.md.
 ✅ Error handling patterns explained  
 ✅ Testing guide with cURL/Postman  
 ✅ Quick reference sections  
-✅ Navigation between documents  
+✅ Navigation between documents
 
 ---
 

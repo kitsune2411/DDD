@@ -53,6 +53,12 @@ src/modules/
     infrastructure/         ← Data access
     interface/              ← API endpoints
 
+  catalog/                  ← Product/Catalog Domain
+    domain/                 ← Catalog aggregate, CatalogItem value objects
+    application/            ← Queries/use-cases (GetCatalogList, CreateCatalog)
+    infrastructure/         ← Persistence adapters (MySQLCatalogRepository)
+    interface/              ← HTTP routes, DTOs, controllers
+
   partner/                  ← Separate domain for partners
     domain/
     application/
@@ -155,6 +161,13 @@ A **Bounded Context** is an isolated domain with its own language, rules, and da
 - **Language**: "Register vendor", "Update profile", "Set commission"
 - **Entities**: Partner, Partnership, CommissionRate
 - **Events**: `PartnerRegistered`, `PartnerSuspended`
+
+#### Catalog Context (catalog/)
+
+- **What**: Manages product catalog, categories, and pricing
+- **Language**: "Add product", "Update price", "List catalog"
+- **Entities**: Catalog, CatalogItem, Category
+- **Events**: `CatalogItemAdded`, `CatalogItemUpdated`
 
 ### Isolation Benefits
 

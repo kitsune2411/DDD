@@ -65,6 +65,13 @@ ddd/
 │   │   │   ├── interface/      # API endpoints (HTTP routes, DTOs)
 │   │   │   └── workers/        # Background jobs (email, notifications)
 │   │   │
+│   │   ├── catalog/            # Product Catalog Domain
+│   │   │   ├── domain/         # Catalog aggregate, value objects
+│   │   │   ├── application/    # Queries and use-cases (GetCatalogList, CreateCatalog)
+│   │   │   ├── infrastructure/ # Persistence adapters (MySQLCatalogRepository)
+│   │   │   ├── interface/      # HTTP routes, DTOs, controllers
+│   │   │   └── mapper/         # Mapping between domain and DTOs
+│   │   │
 │   │   └── partner/            # Partner/Vendor Domain
 │   │       ├── domain/
 │   │       ├── application/
