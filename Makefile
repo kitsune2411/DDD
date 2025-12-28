@@ -25,7 +25,8 @@ help: ## Show all available commands
 	@echo "----------------------------------------------------------------------"
 	@echo "                   PROJECT COMMAND CENTER"
 	@echo "----------------------------------------------------------------------"
-	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@# Kita gunakan 'cat' lalu pipe ke grep agar nama file tidak ikut tercetak
+	@cat $(MAKEFILE_LIST) | grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 # ==============================================================================
 # DEVELOPMENT
