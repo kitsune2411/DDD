@@ -5,7 +5,6 @@ class GetCatalogList {
   }
 
   async execute() {
-    // Direct SQL for Performance (Bypass Domain)
     const sql = `SELECT id, name, created_at FROM catalogs LIMIT 50`;
     const [rows] = await this.db.execute(sql);
     return rows;

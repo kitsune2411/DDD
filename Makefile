@@ -49,15 +49,15 @@ test-watch: ## Run Tests in Watch Mode
 	npm run test:watch
 
 # ==============================================================================
-# SCAFFOLDING (Enterprise DDD: CQRS + UseCases + Tests)
+# SCAFFOLDING (Enterprise: CQRS + UseCases + Tests + Handlers)
 # ==============================================================================
 .PHONY: module
 
-module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make module name=product
+module: ## Create Full DDD Module. Usage: make module name=product
 	@if [ -z "$(name)" ]; then echo "Error: Missing name. Usage: make module name=product"; exit 1; fi
 	@# Logic Capitalize (product -> Product)
 	$(eval CAP_NAME := $(shell echo $(name) | awk '{print toupper(substr($$0,1,1))substr($$0,2)}'))
-	@echo "Scaffolding Enterprise Module '$(name)'... (Class Name: '$(CAP_NAME)')"
+	@echo "Scaffolding Enterprise Module '$(name)'... (Class Name: $(CAP_NAME))"
 	
 	@# 1. Create Complete Directory Structure
 	@mkdir -p src/modules/$(name)/domain
@@ -163,7 +163,7 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "}" >> src/modules/$(name)/infrastructure/persistence/MySQL$(CAP_NAME)Repository.js
 	@echo "module.exports = MySQL$(CAP_NAME)Repository;" >> src/modules/$(name)/infrastructure/persistence/MySQL$(CAP_NAME)Repository.js
 
-	@# 6. USE CASE (WRITE - Command)
+	@# 6. USE CASE (Command)
 	@echo "const $(CAP_NAME) = require('../../domain/$(CAP_NAME)');" > src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js
 	@echo "" >> src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js
 	@echo "class Create$(CAP_NAME) {" >> src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js
@@ -181,7 +181,7 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "}" >> src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js
 	@echo "module.exports = Create$(CAP_NAME);" >> src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js
 
-	@# 7. QUERY (READ - CQRS Lite)
+	@# 7. QUERY (Read Model)
 	@echo "class Get$(CAP_NAME)List {" > src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "  /** @param {import('mysql2/promise').Pool} dbPool */" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "  constructor(dbPool) {" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
@@ -189,7 +189,6 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "  }" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "  async execute() {" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
-	@echo "    // Direct SQL for Performance (Bypass Domain)" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "    const sql = \`SELECT id, name, created_at FROM $(name)s LIMIT 50\`;" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "    const [rows] = await this.db.execute(sql);" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "    return rows;" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
@@ -197,20 +196,19 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "}" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 	@echo "module.exports = Get$(CAP_NAME)List;" >> src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js
 
-	@# 8. TESTS (Unit Test Template)
-	@echo "const $(CAP_NAME) = require('../../domain/$(CAP_NAME)');" > src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "describe('$(CAP_NAME) Domain Entity', () => {" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "  it('should create a valid instance', () => {" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "    const entity = new $(CAP_NAME)({ name: 'Test Item' });" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "    expect(entity.id).toBeDefined();" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "    expect(entity.name).toBe('Test Item');" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "  });" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "  it('should throw error if name is empty', () => {" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "    expect(() => new $(CAP_NAME)({ name: '' })).toThrow();" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "  });" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
-	@echo "});" >> src/modules/$(name)/tests/unit/$(CAP_NAME).test.js
+	@# 8. HANDLERS (New Added!)
+	@echo "const Logger = require('@shared/infra/logging/Logger');" > src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "/**" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo " * Handle Domain Event: $(CAP_NAME)Created" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo " * @param {{ id: string, name: string }} event" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo " */" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "const handleCreated = async (event) => {" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "  Logger.info(\`[$(CAP_NAME)Handler] Handling Created Event: \${event.id}\`);" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "  // TODO: Add side-effects here (e.g. Send Email, Update Stats)" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "};" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
+	@echo "module.exports = { handleCreated };" >> src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js
 
 	@# 9. DTO & CONTROLLER
 	@echo "const { z } = require('zod');" > src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js
@@ -247,7 +245,7 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "}" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 	@echo "module.exports = $(CAP_NAME)Controller;" >> src/modules/$(name)/interface/http/$(CAP_NAME)Controller.js
 
-	@# 10. ROUTER
+	@# 10. ROUTER & WIRING
 	@echo "const router = require('express').Router();" > src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "module.exports = (controller) => {" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "  router.post('/', controller.create);" >> src/modules/$(name)/interface/http/$(name)Routes.js
@@ -255,7 +253,6 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "  return router;" >> src/modules/$(name)/interface/http/$(name)Routes.js
 	@echo "};" >> src/modules/$(name)/interface/http/$(name)Routes.js
 
-	@# 11. WIRING (Module Entry Point)
 	@echo "const MySQL$(CAP_NAME)Repository = require('./infrastructure/persistence/MySQL$(CAP_NAME)Repository');" > src/modules/$(name)/index.js
 	@echo "const Create$(CAP_NAME) = require('./application/use-cases/Create$(CAP_NAME)');" >> src/modules/$(name)/index.js
 	@echo "const Get$(CAP_NAME)List = require('./application/queries/Get$(CAP_NAME)List');" >> src/modules/$(name)/index.js
@@ -264,24 +261,20 @@ module: ## Create Enterprise Module (UseCases + Queries + Tests). Usage: make mo
 	@echo "" >> src/modules/$(name)/index.js
 	@echo "/** @param {import('mysql2/promise').Pool} dbPool */" >> src/modules/$(name)/index.js
 	@echo "module.exports = (dbPool) => {" >> src/modules/$(name)/index.js
-	@echo "  // 1. Setup Infra (Write Side)" >> src/modules/$(name)/index.js
 	@echo "  const repo = new MySQL$(CAP_NAME)Repository(dbPool);" >> src/modules/$(name)/index.js
-	@echo "" >> src/modules/$(name)/index.js
-	@echo "  // 2. Setup Application (Use Cases & Queries)" >> src/modules/$(name)/index.js
 	@echo "  const createUseCase = new Create$(CAP_NAME)(repo);" >> src/modules/$(name)/index.js
 	@echo "  const getListQuery = new Get$(CAP_NAME)List(dbPool);" >> src/modules/$(name)/index.js
-	@echo "" >> src/modules/$(name)/index.js
-	@echo "  // 3. Setup Interface" >> src/modules/$(name)/index.js
 	@echo "  const controller = new $(CAP_NAME)Controller(createUseCase, getListQuery);" >> src/modules/$(name)/index.js
 	@echo "  return createRouter(controller);" >> src/modules/$(name)/index.js
 	@echo "};" >> src/modules/$(name)/index.js
 
-	@echo "Enterprise Module '$(name)' created!"
+	@echo "Enterprise Module '$(name)' created successfully!"
 	@echo "Files generated:"
 	@echo " - src/modules/$(name)/domain/$(CAP_NAME).js"
 	@echo " - src/modules/$(name)/domain/I$(CAP_NAME)Repository.js"
 	@echo " - src/modules/$(name)/mapper/$(CAP_NAME)Map.js"
 	@echo " - src/modules/$(name)/infrastructure/persistence/MySQL$(CAP_NAME)Repository.js"
+	@echo " - src/modules/$(name)/handlers/$(CAP_NAME)EventHandler.js"
 	@echo " - src/modules/$(name)/application/use-cases/Create$(CAP_NAME).js"
 	@echo " - src/modules/$(name)/application/queries/Get$(CAP_NAME)List.js"
 	@echo " - src/modules/$(name)/interface/dtos/Create$(CAP_NAME)DTO.js"
