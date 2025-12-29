@@ -1,27 +1,59 @@
 {
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit"
-  },
-  
+  "editor.defaultFormatter": "vscode.typescript-language-features",
+
+  // Aturan Format Manual (Meniru gaya Prettier tapi native)
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "javascript.format.semicolons": "insert", // Selalu pakai titik koma
+  "javascript.format.insertSpaceAfterOpeningAndBeforeClosingNonemptyBraces": true, // Spasi di { import }
+  "javascript.format.insertSpaceAfterCommaDelimiter": true,
+
   // PENTING: Agar VS Code lebih suka import pakai Alias (@shared) daripada relative path (../../)
   "javascript.preferences.importModuleSpecifier": "non-relative",
-  
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+
+  "javascript.updateImportsOnFileMove.enabled": "always", // Auto update import pas file dipindah/rename
+
+  "javascript.suggest.completeFunctionCalls": true, // Auto lengkapin tanda kurung saat pilih fungsi di auto-complete
+
   // Sembunyikan file sampah
   "files.exclude": {
     "**/.git": true,
     "**/.DS_Store": true,
-    "**/node_modules": false // Biarkan false agar bisa di-search, tapi exclude di watcher
+    "**/node_modules": false, // False agar tetap bisa dicari via Ctrl+P
+    "**/coverage": true, // Sembunyikan folder coverage test
+    "**/dist": true // Sembunyikan folder hasil build
+  },
+
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/coverage/**": true,
+    "**/dist/**": true
+  },
+
+  // Bersihkan hasil Search (Ctrl+Shift+F) dari file lock
+  "search.exclude": {
+    "**/package-lock.json": true,
+    "**/yarn.lock": true
   },
 
   // Fitur Keren: File Nesting
-  // File .test.js akan 'ngumpet' di bawah file aslinya di Explorer
+  // File Nesting ini berguna untuk merapikan tampilan file di Explorer dengan mengelompokkan file terkait
   "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.expand": false, // Default tertutup biar rapi
   "explorer.fileNesting.patterns": {
-    "*.js": "$(capture).test.js, $(capture).spec.js, $(capture).map.js"
+    "*.js": "$(capture).test.js, $(capture).spec.js, $(capture).js.map", // Contoh: app.js, app.test.js, app.js.map
+    "*.ts": "$(capture).test.ts, $(capture).spec.ts, $(capture).ts.map", // Contoh: app.ts, app.test.ts, app.ts.map
+    "package.json": "package-lock.json, .npmrc, Makefile, jsconfig.json, .gitignore, .dockerignore, docker-compose.yml, Dockerfile",
+    ".env": ".env.example, .env.local, .env.development, .env.test, .env.production",
+    "*.md": "$(capture).*.md, $(capture)_*.md, $(capture)-*.md", // Contoh: README.md, README.en.md, README.fr.md
+    "README.md": "*.md" // Nesting semua file .md di bawah README.md
   },
-  
-  // Terminal Font (Opsional)
-  "terminal.integrated.fontSize": 14
+
+  "terminal.integrated.fontSize": 14, // Ukuran font terminal
+  "editor.bracketPairColorization.enabled": true, // Biar kurung {} warna-warni (cegah error kurung)
+  "editor.guides.bracketPairs": true, // Garis bantu antar kurung
+  "editor.renderWhitespace": "selection", // Hanya tunjukkan titik spasi saat teks diblok (bersih)
+  "editor.stickyScroll.enabled": true // Biar header fungsi/kelas tetap terlihat pas di-scroll
 }
